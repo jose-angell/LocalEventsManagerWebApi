@@ -1,4 +1,5 @@
-﻿using LocalEventsManagerWebApi.Models;
+﻿using LocalEventsManagerWebApi.DTOs;
+using LocalEventsManagerWebApi.Models;
 using LocalEventsManagerWebApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +7,7 @@ namespace LocalEventsManagerWebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EventosController : Controller
+    public class EventosController : ControllerBase
     {
         private readonly IEventoRepository _evento;
         public EventosController(IEventoRepository evento)
@@ -29,26 +30,28 @@ namespace LocalEventsManagerWebApi.Controllers
             return Ok(evento);
         }
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] Evento evento)
+        public async Task<IActionResult> Add([FromBody] EventoDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var evento = mapeoDtoToModel(dto);
             var createdEvento = await _evento.AddAsync(evento);
-            return CreatedAtAction(nameof(GetById), new { id= createdEvento.Id}, createdEvento);
+            return CreatedAtAction(nameof(GetById), new { id = createdEvento.Id }, createdEvento);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Evento evento)
+        public async Task<IActionResult> Update(int id, [FromBody] EventoDto dto)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if(id <= 0)
+            if (id <= 0)
             {
                 return BadRequest("El id es invalido");
             }
+            var evento = mapeoDtoToModel(dto);
             evento.Id = id;
             var existingEvento = await _evento.UpdateAsync(evento);
             if (!existingEvento)
@@ -74,5 +77,15 @@ namespace LocalEventsManagerWebApi.Controllers
             return NoContent();
         }
 
+        private Evento mapeoDtoToModel(EventoDto dto)
+        {
+            return new Evento
+            {
+                Titulo = dto.Titulo,
+                Fecha = dto.Fecha,
+                Ubicacion = dto.Ubicacion,
+                Descripcion = dto.Descripcion
+            };
+        }
     }
 }

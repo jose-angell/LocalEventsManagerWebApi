@@ -15,9 +15,9 @@ namespace LocalEventsManagerWebApi.Models
         public DateTime Fecha { get; set; }
 
         [StringLength(200, ErrorMessage = "La ubicación no puede superar los 200 caracteres.")]
-        public string? Ubicacion { get; set; }
+        public string Ubicacion { get; set; }
 
         [StringLength(500, ErrorMessage = "La descripción no puede exceder 500 caracters.")]
-        public string? Descripcion { get; set; } 
+        public string Descripcion { get; set; } 
     }
 }

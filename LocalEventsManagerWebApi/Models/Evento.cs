@@ -19,5 +19,7 @@ namespace LocalEventsManagerWebApi.Models
 
         [StringLength(500, ErrorMessage = "La descripción no puede exceder 500 caracters.")]
         public string Descripcion { get; set; } 
+
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
     }
 }

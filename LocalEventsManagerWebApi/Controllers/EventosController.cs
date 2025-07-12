@@ -1,6 +1,7 @@
 ﻿using LocalEventsManagerWebApi.DTOs;
 using LocalEventsManagerWebApi.Models;
 using LocalEventsManagerWebApi.Repositories;
+using LocalEventsManagerWebApi.services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LocalEventsManagerWebApi.Controllers
@@ -17,7 +18,9 @@ namespace LocalEventsManagerWebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _evento.GetAllAsync());
+            var eventos = await _evento.GetAllAsync();
+            List<EventoResponseDto> eventosResponse = eventos.Select(e => MapeoDatos.MapeoModelToResponseDto(e)).ToList();
+            return Ok(eventosResponse);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
@@ -27,7 +30,8 @@ namespace LocalEventsManagerWebApi.Controllers
             {
                 return NotFound();
             }
-            return Ok(evento);
+            var eventoResponse = MapeoDatos.MapeoModelToResponseDto(evento);
+            return Ok(eventoResponse);
         }
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] EventoDto dto)
@@ -36,7 +40,7 @@ namespace LocalEventsManagerWebApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var evento = mapeoDtoToModel(dto);
+            var evento = MapeoDatos.MapeoDtoToModel(dto);
             var createdEvento = await _evento.AddAsync(evento);
             return CreatedAtAction(nameof(GetById), new { id = createdEvento.Id }, createdEvento);
         }
@@ -51,7 +55,7 @@ namespace LocalEventsManagerWebApi.Controllers
             {
                 return BadRequest("El id es invalido");
             }
-            var evento = mapeoDtoToModel(dto);
+            var evento = MapeoDatos.MapeoDtoToModel(dto);
             evento.Id = id;
             var existingEvento = await _evento.UpdateAsync(evento);
             if (!existingEvento)
@@ -75,17 +79,6 @@ namespace LocalEventsManagerWebApi.Controllers
                 return NotFound();
             }
             return NoContent();
-        }
-
-        private Evento mapeoDtoToModel(EventoDto dto)
-        {
-            return new Evento
-            {
-                Titulo = dto.Titulo,
-                Fecha = dto.Fecha,
-                Ubicacion = dto.Ubicacion,
-                Descripcion = dto.Descripcion
-            };
         }
     }
 }
